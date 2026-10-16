@@ -39,6 +39,27 @@ public class AddressBookEntry : Entity<Guid>
 		return entry;
 	}
 
+	public void Update(AddressBookEntryRequest addressBookUpdateRequest, DateTimeOffset updatedAt)
+	{
+
+		Name = addressBookUpdateRequest.Name;
+		Address = addressBookUpdateRequest.Address;
+		TimezoneId = addressBookUpdateRequest.TimezoneId;
+		UpdateContacts(addressBookUpdateRequest.Contacts);
+
+		UpdatedAt = updatedAt;
+
+		RecordEvent(new AddressBookEntryUpdated(Id, Name, Address, Contacts));
+	}
+
+	public void Delete(DateTimeOffset deletedAt)
+	{
+		DeletedAt = deletedAt;
+		UpdatedAt = deletedAt;
+
+		RecordEvent(new AddressBookEntryDeleted(Id, Name, Address, Contacts));
+	}
+
 	public void UpdateContacts(IReadOnlyList<AddressBookContact> contacts)
 	{
 		_contacts.Clear();
@@ -48,3 +69,5 @@ public class AddressBookEntry : Entity<Guid>
 
 public abstract record AddressBookEvent(Guid Id) : IEvent;
 public record AddressBookEntryCreated(Guid Id, string Name, Address Address, IReadOnlyList<AddressBookContact> Contacts) : AddressBookEvent(Id);
+public record AddressBookEntryUpdated(Guid Id, string Name, Address Address, IReadOnlyList<AddressBookContact> Contacts) : AddressBookEvent(Id);
+public record AddressBookEntryDeleted(Guid Id, string Name, Address Address, IReadOnlyList<AddressBookContact> Contacts) : AddressBookEvent(Id);

@@ -62,5 +62,7 @@ public class AddressBookEntryConfiguration : IEntityTypeConfiguration<AddressBoo
 					value => value == null ? null : PhoneNumber.Create(value)
 				);
 		});
+
+		builder.HasQueryFilter(x => x.DeletedAt == null);
 	}
 }
